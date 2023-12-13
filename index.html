@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shamir's Secret Sharing Demo</title>
+    <style>
+        #sharesOutput, #recoveredSecret {
+            white-space: pre; /* 줄바꿈과 공백을 유지 */
+            background-color: #f0f0f0; /* 배경색 */
+            padding: 10px; /* 패딩 */
+            border: 1px solid #ddd; /* 테두리 */
+            margin-top: 10px; /* 마진 */
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+    </style>
+    <script>
+        function createShares() {
+            var secret = document.getElementById('secretInput').value;
+            fetch('http://localhost:3000/create-shares', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ secret: secret })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('sharesOutput').textContent = data.shares.join('\n');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function recoverSecret() {
+            var shares = document.getElementById('sharesInput').value.split('\n');
+            fetch('http://localhost:3000/recover-secret', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ shares: shares })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('recoveredSecret').textContent = data.secret;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Shamir's Secret Sharing</h1>
+
+    <div>
+        <h2>Create Shares</h2>
+        <input type="text" id="secretInput" placeholder="Enter secret">
+        <button onclick="createShares()">Create Shares</button>
+        <pre id="sharesOutput"></pre>
+    </div>
+
+    <div>
+        <h2>Recover Secret</h2>
+        <textarea id="sharesInput" placeholder="Enter shares (one per line)"></textarea>
+        <button onclick="recoverSecret()">Recover Secret</button>
+        <pre id="recoveredSecret"></pre>
+    </div>
+</body>
+</html>
